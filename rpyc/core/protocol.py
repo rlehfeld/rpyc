@@ -836,6 +836,7 @@ class Connection(object):
             consts.HANDLE_CALLATTR: cls._handle_callattr,
             consts.HANDLE_REPR: cls._handle_repr,
             consts.HANDLE_STR: cls._handle_str,
+            consts.HANDLE_BOOL: cls._handle_bool,
             consts.HANDLE_CMP: cls._handle_cmp,
             consts.HANDLE_HASH: cls._handle_hash,
             consts.HANDLE_INSTANCECHECK: cls._handle_instancecheck,
@@ -865,6 +866,9 @@ class Connection(object):
 
     def _handle_str(self, obj):  # request handler
         return str(obj)
+
+    def _handle_bool(self, obj):  # request handler
+        return bool(obj)
 
     def _handle_cmp(self, obj, other, op='__cmp__'):  # request handler
         # cmp() might enter recursive resonance... so use the underlying type and return cmp(obj, other)

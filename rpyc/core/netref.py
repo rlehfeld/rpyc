@@ -197,6 +197,9 @@ class BaseNetref(object, metaclass=NetrefMetaclass):
     def __str__(self):
         return syncreq(self, consts.HANDLE_STR)
 
+    def __bool__(self):
+        return syncreq(self, consts.HANDLE_BOOL)
+
     def __exit__(self, exc, typ, tb):
         return syncreq(self, consts.HANDLE_CTXEXIT, exc)  # can't pass type nor traceback
 

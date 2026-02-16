@@ -21,7 +21,7 @@ LOCAL_ATTRS = frozenset([
     '____conn__', '____id_pack__', '____refcount__', '__class__', '__cmp__', '__del__', '__delattr__',
     '__dir__', '__doc__', '__getattr__', '__getattribute__', '__hash__', '__instancecheck__',
     '__init__', '__metaclass__', '__module__', '__new__', '__reduce__',
-    '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__',
+    '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__', '__bool__',
     '__weakref__', '__dict__', '__methods__', '__exit__',
     '__eq__', '__ne__', '__lt__', '__gt__', '__le__', '__ge__',
 ]) | DELETED_ATTRS

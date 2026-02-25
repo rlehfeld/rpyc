@@ -19,7 +19,7 @@ DELETED_ATTRS = frozenset([
 """the set of attributes that are local to the netref object"""
 LOCAL_ATTRS = frozenset([
     '____conn__', '____id_pack__', '____refcount__', '__class__', '__cmp__', '__del__', '__delattr__',
-    '__dir__', '__doc__', '__getattr__', '__getattribute__', '__hash__', '__instancecheck__',
+    '__dir__', '__doc__', '__getattr__', '__getattribute__', '__hash__', '__instancecheck__', '__subclasscheck__',
     '__init__', '__metaclass__', '__module__', '__new__', '__reduce__',
     '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__', '__bool__',
     '__weakref__', '__dict__', '__methods__', '__exit__',
@@ -213,10 +213,7 @@ class BaseNetref(object, metaclass=NetrefMetaclass):
             if self.____id_pack__[2] != 0:
                 raise TypeError("isinstance() arg 2 must be a class, type, or tuple of classes and types")
             elif self.____id_pack__[1] == other.____id_pack__[1]:
-                if other.____id_pack__[2] == 0:
-                    return False
-                elif other.____id_pack__[2] != 0:
-                    return True
+                return other.____id_pack__[2] != 0
             else:
                 # seems dubious if each netref proxies to a different address spaces
                 return syncreq(self, consts.HANDLE_INSTANCECHECK, other.____id_pack__)
@@ -225,6 +222,24 @@ class BaseNetref(object, metaclass=NetrefMetaclass):
                 # outside the context of `__instancecheck__`, `__class__` is expected to be type(self)
                 # within the context of `__instancecheck__`, `other` should be compared to the proxied class
                 return isinstance(other, type(self).__dict__['__class__'].instance)
+            else:
+                raise TypeError("isinstance() arg 2 must be a class, type, or tuple of classes and types")
+
+    def __subclasscheck__(self, other):
+        # support for checking cached instances across connections
+        if isinstance(other, BaseNetref):
+            if self.____id_pack__[2] != 0:
+                raise TypeError("isinstance() arg 2 must be a class, type, or tuple of classes and types")
+            elif self.____id_pack__[1] == other.____id_pack__[1]:
+                return other.____id_pack__[2] == 0
+            else:
+                # seems dubious if each netref proxies to a different address spaces
+                return syncreq(self, consts.HANDLE_SUBCLASSCHECK, other.____id_pack__)
+        else:
+            if self.____id_pack__[2] == 0:
+                # outside the context of `__instancecheck__`, `__class__` is expected to be type(self)
+                # within the context of `__instancecheck__`, `other` should be compared to the proxied class
+                return issubclass(other, type(self).__dict__['__class__'].instance)
             else:
                 raise TypeError("isinstance() arg 2 must be a class, type, or tuple of classes and types")
 

@@ -36,6 +36,9 @@ class MyService(rpyc.Service):
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     def exposed_getlist(self):
+        return list
+
+    def exposed_getlistinstance(self):
         return [
             1, 2, 3]
 
@@ -47,6 +50,9 @@ class MyService(rpyc.Service):
 
     def exposed_instance(self, inst, cls):
         return isinstance(inst, cls)
+
+    def exposed_subclass(self, subcls, cls):
+        return issubclass(subcls, cls)
 
     def exposed_getnonetype(self):
         """ About the unit test - what's common to types.MethodType and NoneType is that both are
@@ -116,7 +122,8 @@ class Test_Netref_Hierarchy(unittest.TestCase):
             bar = self.conn.modules.tests.test_magic.Bar()
             self.assertTrue(isinstance(foo, self.conn.modules.tests.test_magic.Foo))
             self.assertTrue(isinstance(bar, self.conn2.modules.tests.test_magic.Bar))
-            self.assertFalse(isinstance(bar, self.conn.modules.tests.test_magic.Foo))
+            self.assertFalse(isinstance(foo, self.conn.modules.tests.test_magic.Bar))
+            self.assertTrue(isinstance(bar, self.conn.modules.tests.test_magic.Foo))
             with self.assertRaises(TypeError):
                 isinstance(self.conn.modules.tests.test_magic.Foo, bar)
         finally:
@@ -146,8 +153,18 @@ class Test_Netref_Hierarchy(unittest.TestCase):
         conn = rpyc.connect_thread(remote_service=service)
         try:
             conn.root
+            remote_listinstance = conn.root.getlistinstance()
+            self.assertTrue(conn.root.instance(remote_listinstance, list))
+        finally:
+            conn.close()
+
+    def test_subclasscheck_list(self):
+        service = MyService()
+        conn = rpyc.connect_thread(remote_service=service)
+        try:
+            conn.root
             remote_list = conn.root.getlist()
-            self.assertTrue(conn.root.instance(remote_list, list))
+            self.assertTrue(conn.root.subclass(remote_list, list))
         finally:
             conn.close()
 

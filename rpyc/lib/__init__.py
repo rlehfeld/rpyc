@@ -210,6 +210,7 @@ def get_id_pack(obj):
             else:
                 obj_cls = getattr(obj, '__class__', type(obj))
                 name_pack = f'{obj_cls.__module__}.{obj_name}'
+                return (name_pack, id(obj_cls), id(obj))
         elif inspect.ismodule(obj):
             name_pack = '{obj.__module__}.{obj_name}'
         else:
@@ -223,7 +224,7 @@ def get_id_pack(obj):
     if not inspect.isclass(obj):
         obj_cls = getattr(obj, '__class__', type(obj))
         name_pack = f'{obj_cls.__module__}.{obj_cls.__name__}'
-        return (name_pack, id(type(obj)), id(obj))
+        return (name_pack, id(obj_cls), id(obj))
 
     name_pack = f'{obj.__module__}.{obj_name}'
     return (name_pack, id(obj), 0)

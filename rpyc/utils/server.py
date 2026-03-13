@@ -49,7 +49,7 @@ class Server(object):
 
     def __init__(self, service, hostname=None, ipv6=False, port=0,
                  backlog=socket.SOMAXCONN, reuse_addr=True, authenticator=None, registrar=None,
-                 auto_register=None, protocol_config=None, logger=None, listener_timeout=0.5,
+                 auto_register=None, protocol_config=None, logger=None, nodelay=False, listener_timeout=0.5,
                  socket_path=None):
         self.active = False
         self._closed = False
@@ -73,6 +73,8 @@ class Server(object):
             if hostname is not None or port != 0 or ipv6 is not False:
                 raise ValueError("socket_path is mutually exclusive with: hostname, port, ipv6")
             self.listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            if nodelay:
+                s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.listener.bind(socket_path)
             # set the self.port to the path as it's used for the registry and logging
             self.host, self.port = "", socket_path
@@ -90,6 +92,8 @@ class Server(object):
                 # it allows you to bind an already bound port, resulting in
                 # "unexpected behavior" (quoting MSDN)
                 self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            if nodelay:
+                s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.listener.bind(address)
             self.listener.settimeout(listener_timeout)
 

@@ -43,6 +43,7 @@ class Server(object):
                             that is passed to the RPyC connection
     :param logger: the ``logger`` to use (of the built-in ``logging`` module). If ``None``, a
                    default logger will be created.
+    :param nodelay: whether or not to set the option ``TCP_NODELAY`` on the socket.
     :param listener_timeout: the timeout of the listener socket; set to ``None`` to disable (e.g.
                              on embedded platforms with limited battery)
     """

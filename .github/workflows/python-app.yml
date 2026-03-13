@@ -22,10 +22,10 @@ jobs:
 
     name: Unittest (${{ matrix.python_version }}, bind_threads=${{ matrix.RPYC_BIND_THREADS }})
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install gdb

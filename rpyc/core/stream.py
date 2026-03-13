@@ -122,7 +122,7 @@ class SocketStream(Stream):
 
     @classmethod
     def _connect(cls, host, port, family=socket.AF_INET, socktype=socket.SOCK_STREAM,
-                 proto=0, timeout=3, nodelay=False, keepalive=False, attempts=6):
+                 proto=0, timeout=3, nodelay=True, keepalive=False, attempts=6):
         family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, family,
                                                                   socktype, proto)[0]
         s = socket_backoff_connect(family, socktype, proto, sockaddr, timeout, attempts)

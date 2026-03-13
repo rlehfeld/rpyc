@@ -49,7 +49,7 @@ class Server(object):
 
     def __init__(self, service, hostname=None, ipv6=False, port=0,
                  backlog=socket.SOMAXCONN, reuse_addr=True, authenticator=None, registrar=None,
-                 auto_register=None, protocol_config=None, logger=None, nodelay=False, listener_timeout=0.5,
+                 auto_register=None, protocol_config=None, logger=None, nodelay=True, listener_timeout=0.5,
                  socket_path=None):
         self.active = False
         self._closed = False

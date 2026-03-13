@@ -73,8 +73,6 @@ class Server(object):
             if hostname is not None or port != 0 or ipv6 is not False:
                 raise ValueError("socket_path is mutually exclusive with: hostname, port, ipv6")
             self.listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            if nodelay:
-                self.listener.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.listener.bind(socket_path)
             # set the self.port to the path as it's used for the registry and logging
             self.host, self.port = "", socket_path

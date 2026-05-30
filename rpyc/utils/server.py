@@ -144,6 +144,9 @@ class Server(object):
         if self.logger is not None:
             self.logger.info("listener closed")
         for c in set(self.clients):
+            # TODO: we have to wait until other receivers returnd from the channel reading
+            #       and only execute the following code once we have exclusive read access
+            #       to the client socket
             if hasattr(socket, 'SHUT_WR'):
                 try:
                     c.settimeout(5)
@@ -210,9 +213,9 @@ class Server(object):
     def _authenticate_and_serve_client(self, sock):
         credentials = None
         sock_auth = sock
+        addrinfo = sock.getpeername()
         try:
             if self.authenticator:
-                addrinfo = sock.getpeername()
                 try:
                     sock_auth, credentials = self.authenticator(sock)
                     if sock_auth is not sock:
@@ -227,7 +230,7 @@ class Server(object):
             try:
                 self._serve_client(sock_auth, credentials)
             except Exception:
-                self.logger.exception("client connection terminated abruptly")
+                self.logger.exception(f"{addrinfo} client connection terminated abruptly")
                 raise
         finally:
             try:

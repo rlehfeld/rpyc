@@ -422,9 +422,12 @@ class SocketStream(Stream):
                     sock.shutdown(socket.SHUT_WR)
                     while True:
                         # wait for peer to close it's sending side as well
-                        buf = sock.recv(self.MAX_IO_CHUNK)
-                        if not buf:
-                            break
+                        try:
+                            buf = sock.recv(self.MAX_IO_CHUNK)
+                            if not buf:
+                                break
+                        except TimeoutError:
+                            continue
                 except Exception:
                     pass
             sock.close()
@@ -433,7 +436,7 @@ class SocketStream(Stream):
     def fileno(self):
         try:
             fileno = self.sock.fileno()
-        except socket.error as ex:
+        except OSError as ex:
             self.close()
             if get_exc_errno(ex) == errno.EBADF:
                 raise EOFError()
@@ -451,9 +454,9 @@ class SocketStream(Stream):
             self.acquire_read()
             try:
                 buf = self.sock.recv(min(self.MAX_IO_CHUNK, count))
-            except socket.timeout:
+            except TimeoutError:
                 continue
-            except socket.error as ex:
+            except OSError as ex:
                 if get_exc_errno(ex) in retry_errnos:
                     # windows just has to be a bitch
                     continue
@@ -479,7 +482,7 @@ class SocketStream(Stream):
                     # resume reading
                     self.resume_read()
                 data = data[count:]
-        except socket.error as ex:
+        except OSError as ex:
             self.close()
             raise EOFError(ex)
 

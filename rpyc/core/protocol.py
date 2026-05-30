@@ -497,7 +497,7 @@ class Connection:
                 self.__seq_request_callback(msg, seq, True, obj)
                 self.notify()
             else:
-                raise ValueError(f"invalid message type: {msg!r}")
+                raise ValueError(f"invalid message type: {msg!r}, {data=!r}")
 
     def notify(self):
         self.__channel.notify()

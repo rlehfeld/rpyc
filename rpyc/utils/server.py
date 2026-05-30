@@ -144,7 +144,7 @@ class Server(object):
         if self.logger is not None:
             self.logger.info("listener closed")
         for c in set(self.clients):
-            # TODO: we have to wait until other receivers returnd from the channel reading
+            # TODO: we have to wait until other receivers returned from the channel reading
             #       and only execute the following code once we have exclusive read access
             #       to the client socket
             if hasattr(socket, 'SHUT_WR'):

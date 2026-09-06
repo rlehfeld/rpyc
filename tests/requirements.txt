@@ -4,3 +4,4 @@ gevent
 pandas
 numpy
 paramiko
+pywin32; sys_platform == 'win32'

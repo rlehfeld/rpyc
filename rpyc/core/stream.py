@@ -487,7 +487,7 @@ class SocketStream(Stream):
                     if not data:
                         try:
                             ndelay = self.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY)
-                        except OSError, AttributeError:
+                        except (OSError, AttributeError):
                             pass
                         else:
                             if not ndelay:

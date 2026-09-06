@@ -55,6 +55,11 @@ class Stream:
         self.__socket_w, self.__socket_r = socket.socketpair()
         self.__socket_r.set_inheritable(False)
         self.__socket_w.set_inheritable(False)
+        try:
+            # for OS versions, where socketpair is faked
+            self.__socket_w.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        except OSError:
+            pass
         if hasattr(socket, 'SHUT_WR'):
             self.__socket_r.shutdown(socket.SHUT_WR)
         if hasattr(socket, 'SHUT_RD'):
@@ -288,7 +293,7 @@ class SocketStream(Stream):
 
     @classmethod
     def _connect(cls, host, port, family=socket.AF_INET, socktype=socket.SOCK_STREAM,
-                 proto=0, timeout=3, nodelay=True, keepalive=False, attempts=6):
+                 proto=0, timeout=3, nodelay=False, keepalive=False, attempts=6):
         family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, family,
                                                                   socktype, proto)[0]
         s = socket_backoff_connect(family, socktype, proto, sockaddr, timeout, attempts)
@@ -478,10 +483,20 @@ class SocketStream(Stream):
                 self.pause_read()
                 try:
                     count = self.sock.send(data[:self.MAX_IO_CHUNK])
+                    data = data[count:]
+                    if not data:
+                        try:
+                            ndelay = self.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY)
+                        except OSError, AttributeError:
+                            pass
+                        else:
+                            if not ndelay:
+                                # enforce a flush
+                                self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                                self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 0)
                 finally:
                     # resume reading
                     self.resume_read()
-                data = data[count:]
         except OSError as ex:
             self.close()
             raise EOFError(ex)
